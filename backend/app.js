@@ -1,8 +1,11 @@
 const express = require("express");
+const path=require("path");
 const cors = require("cors");
+//import express from 'express';
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const postRoutes = require("./routes/posts");
+const userRouter = require("./routes/user");
 const app = express();
 
 
@@ -24,9 +27,11 @@ mongoose
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cors());
+app.use("/images",express.static(path.join('backend/images')))
 
 /////////////// App Routes //////////////////////
 app.use("/api/posts",postRoutes);
+app.use("/api/users",userRouter);
 
 
 
