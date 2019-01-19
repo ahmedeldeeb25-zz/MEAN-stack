@@ -5,6 +5,7 @@ import { ActivatedRoute, ParamMap } from "@angular/router";
 import { PostService } from "../post.service";
 import { Post } from "../post.model";
 import { mimeType } from "./mime-type.validator";
+import { createError } from "@angular/core/src/render3/instructions";
 
 @Component({
   selector: "app-post-create",
@@ -48,7 +49,8 @@ export class PostCreateComponent implements OnInit {
             id: postData._id,
             title: postData.title,
             content: postData.content,
-            imagePath: postData.imagePath
+            imagePath: postData.imagePath,
+            creator:postData.creator
           };
           this.form.setValue({
             title: this.post.title,

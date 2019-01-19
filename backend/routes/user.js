@@ -44,7 +44,7 @@ router.post("/login", (req, res, next) => {
       return bcrypt.compare(req.body.password,user.password);
 
     }).then(result =>{
-      if(!result){
+      if(!result){ 
         return res.status(401).json({
           message:"Invalid Credentials"
         });
@@ -56,6 +56,7 @@ router.post("/login", (req, res, next) => {
       return res.status(200).json({
         message:"Login successfuly",
         token:token,
+        userId:fetchedUser._id, 
         expiresIn:3600
       });
     })

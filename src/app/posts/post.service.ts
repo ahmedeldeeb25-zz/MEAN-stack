@@ -5,34 +5,42 @@ import { map } from "rxjs/operators";
 import { Router } from "@angular/router";
 
 import { Post } from "./post.model";
- 
 
 @Injectable()
 export class PostService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<{posts:Post[],total:number}>();
+  private postsUpdated = new Subject<{ posts: Post[]; total: number }>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  getPosts(page,size) {
-    const queryParam=`?page=${page}&size=${size}`;
+  getPosts(page, size) {
+    const queryParam = `?page=${page}&size=${size}`;
     this.http
-      .get<{ message: string; posts: any,total:number }>("http://localhost:3000/api/posts"+queryParam)
+      .get<{ message: string; posts: any; total: number }>(
+        "http://localhost:3000/api/posts" + queryParam
+      )
       .pipe(
         map(postData => {
-          return {posts : postData.posts.map(post => {
-            return {
-              title: post.title,
-              content: post.content,
-              id: post._id,
-              imagePath: post.imagePath
-            };
-          }),total : postData.total};
+          return {
+            posts: postData.posts.map(post => {
+              return {
+                title: post.title,
+                content: post.content,
+                id: post._id,
+                imagePath: post.imagePath,
+                creator: post.creator
+              };
+            }),
+            total: postData.total
+          };
         })
       )
       .subscribe(transformedPosts => {
         this.posts = transformedPosts.posts;
-        this.postsUpdated.next({posts:[...this.posts],total:transformedPosts.total});
+        this.postsUpdated.next({
+          posts: [...this.posts],
+          total: transformedPosts.total
+        });
       });
   }
 
@@ -41,9 +49,13 @@ export class PostService {
   }
 
   getPost(id: string) {
-    return this.http.get<{ _id: string, title: string, content: string, imagePath: string }>(
-      "http://localhost:3000/api/posts/" + id
-    );
+    return this.http.get<{
+      _id: string;
+      title: string;
+      content: string;
+      imagePath: string;
+      creator: string;
+    }>("http://localhost:3000/api/posts/" + id);
   }
 
   addPost(title: string, content: string, image: File) {
@@ -61,10 +73,14 @@ export class PostService {
           id: responseData.post.id,
           title: title,
           content: content,
-          imagePath: responseData.post.imagePath
+          imagePath: responseData.post.imagePath,
+          creator: responseData.post.creator
         };
         this.posts.push(post);
-        this.postsUpdated.next({posts:[...this.posts],total:this.posts.length});
+        this.postsUpdated.next({
+          posts: [...this.posts],
+          total: this.posts.length
+        });
         this.router.navigate(["/"]);
       });
   }
@@ -82,7 +98,8 @@ export class PostService {
         id: id,
         title: title,
         content: content,
-        imagePath: image
+        imagePath: image,
+        creator: null
       };
     }
     this.http
@@ -94,17 +111,20 @@ export class PostService {
           id: id,
           title: title,
           content: content,
-          imagePath: ""
+          imagePath: "",
+          creator: null
         };
         updatedPosts[oldPostIndex] = post;
         this.posts = updatedPosts;
-        this.postsUpdated.next({posts:[...this.posts],total:this.posts.length});
+        this.postsUpdated.next({
+          posts: [...this.posts],
+          total: this.posts.length
+        });
         this.router.navigate(["/"]);
       });
   }
 
   deletePost(postId: string) {
     return this.http.delete("http://localhost:3000/api/posts/" + postId);
-
   }
 }
